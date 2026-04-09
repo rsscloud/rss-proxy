@@ -1,0 +1,27 @@
+{
+  "name": "@rsscloud/rss-proxy",
+  "version": "0.1.0",
+  "description": "RSS feed proxy with rssCloud integration",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "docker:build-push": "./scripts/docker-build-push.sh",
+    "docker:build-push-skip-quality": "./scripts/docker-build-push.sh --skip-quality",
+    "docker:dry-run": "./scripts/docker-build-push.sh --dry-run --skip-quality"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hono/node-server": "^1.19.13",
+    "hono": "^4.12.12"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
