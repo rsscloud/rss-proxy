@@ -6,7 +6,7 @@ import { replaceCloudTag } from "../lib/xml.js";
 export function feedRoutes(config: Config): Hono {
   const app = new Hono();
 
-  app.get("/", async (c) => {
+  app.get("/*", async (c) => {
     try {
       const xml = await fetchUpstreamFeed(config.upstreamFeedUrl);
       const modified = replaceCloudTag(xml);

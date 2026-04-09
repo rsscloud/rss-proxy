@@ -1,8 +1,12 @@
 import { Hono } from "hono";
 import type { Config } from "../config.js";
 import { notifyFeeds } from "../services/rsscloud.js";
+import type { StatusTracker } from "../status.js";
 
-export function callbackRoutes(config: Config): Hono {
+export function callbackRoutes(
+  config: Config,
+  status: StatusTracker
+): Hono {
   const app = new Hono();
 
   const handler = async (c: any) => {
@@ -16,6 +20,7 @@ export function callbackRoutes(config: Config): Hono {
 
     if (url) {
       console.log(`Feed updated notification for: ${url}`);
+      status.lastPingAt = new Date();
       notifyFeeds(config.emulatedFeeds).catch((err) =>
         console.error("Error notifying feeds:", err)
       );

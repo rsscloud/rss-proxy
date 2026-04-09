@@ -1,15 +1,19 @@
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { loadConfig } from "./config.js";
+import { createStatusTracker } from "./status.js";
+import { healthRoute } from "./routes/health.js";
 import { feedRoutes } from "./routes/feed.js";
 import { callbackRoutes } from "./routes/callback.js";
 import { subscribe } from "./services/rsscloud.js";
 
 const config = loadConfig();
+const status = createStatusTracker();
 const app = new Hono();
 
+app.route("/", healthRoute(config, status));
+app.route("/feedupdated", callbackRoutes(config, status));
 app.route("/", feedRoutes(config));
-app.route("/feedupdated", callbackRoutes(config));
 
 async function subscriptionLoop() {
   while (true) {
