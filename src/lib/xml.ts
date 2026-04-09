@@ -1,3 +1,5 @@
+import { XMLParser } from "fast-xml-parser";
+
 const CLOUD_TAG = `<cloud domain="rpc.rsscloud.io" port="5337" path="/pleaseNotify" registerProcedure="" protocol="http-post"/>`;
 
 const CLOUD_REGEX = /<cloud\s[^>]*\/?>(\s*<\/cloud>)?/i;
@@ -22,27 +24,27 @@ export interface CloudInfo {
   protocol: string;
 }
 
-export function parseCloudTag(xml: string): CloudInfo | null {
-  const match = xml.match(/<cloud\s([^>]*)\/?>/)
-  if (!match) return null;
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: "@_",
+});
 
-  const attrs = match[1];
-  const domain = extractAttr(attrs, "domain");
-  const port = extractAttr(attrs, "port");
-  const path = extractAttr(attrs, "path");
-  const protocol = extractAttr(attrs, "protocol");
+export function parseCloudTag(xml: string): CloudInfo | null {
+  const parsed = parser.parse(xml);
+  const cloud = parsed?.rss?.channel?.cloud;
+  if (!cloud) return null;
+
+  const domain = cloud["@_domain"];
+  const port = cloud["@_port"];
+  const path = cloud["@_path"];
+  const protocol = cloud["@_protocol"];
 
   if (!domain || !port || !path) return null;
 
   return {
     domain,
-    port: parseInt(port, 10),
+    port: parseInt(String(port), 10),
     path,
     protocol: protocol || "http-post",
   };
-}
-
-function extractAttr(attrs: string, name: string): string | null {
-  const match = attrs.match(new RegExp(`${name}="([^"]*)"`));
-  return match ? match[1] : null;
 }
