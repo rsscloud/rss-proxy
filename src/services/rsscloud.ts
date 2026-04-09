@@ -1,6 +1,12 @@
+import { XMLParser } from "fast-xml-parser";
 import type { Config } from "../config.js";
 import { fetchUpstreamFeed } from "./feed-fetcher.js";
 import { parseCloudTag } from "../lib/xml.js";
+
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: "@_",
+});
 
 export async function subscribe(config: Config): Promise<void> {
   const xml = await fetchUpstreamFeed(config.upstreamFeedUrl);
@@ -28,9 +34,20 @@ export async function subscribe(config: Config): Promise<void> {
     body,
   });
 
+  const text = await res.text();
+
   if (!res.ok) {
-    const text = await res.text();
     throw new Error(`Subscription failed (${res.status}): ${text}`);
+  }
+
+  const parsed = parser.parse(text);
+  const result = parsed?.notifyResult;
+  if (result) {
+    const success = result["@_success"] === "true";
+    const msg = result["@_msg"] || "";
+    if (!success) {
+      throw new Error(`Subscription rejected: ${msg}`);
+    }
   }
 
   console.log(`Subscribed to ${subscribeUrl} for ${config.upstreamFeedUrl}`);

@@ -16,7 +16,7 @@ async function subscriptionLoop() {
     try {
       await subscribe(config);
     } catch (err) {
-      console.error("Subscription failed:", err);
+      console.error("Subscription failed:", err instanceof Error ? err.message : err);
     }
     await new Promise((r) =>
       setTimeout(r, config.resubscribeIntervalHours * 60 * 60 * 1000)
