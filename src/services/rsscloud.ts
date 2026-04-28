@@ -17,7 +17,8 @@ export async function subscribe(config: Config): Promise<void> {
   }
 
   const callbackUrl = new URL(config.callbackUrl);
-  const subscribeUrl = `http://${cloud.domain}:${cloud.port}${cloud.path}`;
+  const scheme = cloud.port === 443 ? "https" : "http";
+  const subscribeUrl = `${scheme}://${cloud.domain}:${cloud.port}${cloud.path}`;
 
   const body = new URLSearchParams({
     domain: callbackUrl.hostname,
